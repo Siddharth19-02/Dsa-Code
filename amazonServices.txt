@@ -1,3 +1,5 @@
+These are the services beginners should know about
+
 Amazon Ec2
 AWS Elastic Beanstalk
 Amazon Relational Database Service
