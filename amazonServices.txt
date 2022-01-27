@@ -1,0 +1,5 @@
+Amazon Ec2
+AWS Elastic Beanstalk
+Amazon Relational Database Service
+Amazon S3
+Amazon route 53
