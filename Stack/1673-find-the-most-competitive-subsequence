@@ -1,0 +1,30 @@
+class Solution {
+public:
+    vector<int> mostCompetitive(vector<int>& nums, int k) {
+        
+        stack<int>s;
+        int n = nums.size();
+        for(int i=0;i<nums.size();i++)
+        {
+            while(!s.empty() and n-i>k-s.size() and  nums[s.top()]>nums[i])
+            {
+                s.pop();
+            }
+            if(s.size()<k)
+                s.push(i);
+        }
+        
+        vector<int>res;
+        
+        while(s.size()>k)
+            s.pop();
+        
+        while(!s.empty())
+        {
+            res.push_back(nums[s.top()]);
+            s.pop();
+        }
+        reverse(res.begin(),res.end());
+        return res;
+    }
+};
