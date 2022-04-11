@@ -3,7 +3,7 @@ public:
     vector<int> exclusiveTime(int n, vector<string>& logs) {
         
         vector<int>vec(n,0);
-        stack<pair<int,int> >s;
+        stack<int>s;
         int lastExecutableTime = 0;
         
         for(int i=0;i<logs.size();i++)
@@ -41,17 +41,15 @@ public:
             {
                 if(!s.empty())
                 {
-                    int cu = s.top().first;
+                    int cu = s.top();
                     vec[cu] += endingNumber - lastExecutableTime ;
                     lastExecutableTime = endingNumber;
                 }
-                s.push({startingNumber,endingNumber});
+                s.push(startingNumber);
             }
             else
             {
-                int first = s.top().first;
-                int second= s.top().second;
-                
+                int first = s.top();
                 vec[first] += endingNumber - lastExecutableTime +1;
                 s.pop();
                 lastExecutableTime  = endingNumber+1;
