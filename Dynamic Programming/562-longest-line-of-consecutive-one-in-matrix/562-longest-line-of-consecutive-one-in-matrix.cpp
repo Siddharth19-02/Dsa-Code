@@ -40,7 +40,7 @@ class Solution {
         if (M[i][j] == 1) {
           dp[j][0] = j > 0 ? dp[j - 1][0] + 1 : 1;
           dp[j][1] = i > 0 ? dp[j][1] + 1 : 1;
-          int prev = dp[j][2];
+          int prev = dp[j][2];   // we are changing this which is a diagonal element for next element , thats why we are storing this
           dp[j][2] = (i > 0 && j > 0) ? old + 1 : 1;
           old = prev;
           dp[j][3] = (i > 0 && j < M[0].length - 1) ? dp[j + 1][3] + 1 : 1;
