@@ -16,17 +16,17 @@ public:
 
         for(int i=1;i<n;i++)
         {
-            max_sum = max(max_sum, max(nums[i], nums[i]+maxSumWithSquare) ); 
-
             maxSumWithSquare = max(nums[i]*nums[i] ,
                     max(maxSumWithoutSquare + nums[i]*nums[i]
                 , maxSumWithSquare+nums[i]
                 )
             );
 
+            max_sum = max(max_sum, maxSumWithSquare);
+
             maxSumWithoutSquare = max(0,max(nums[i], nums[i] + maxSumWithoutSquare) );
 
-            max_sum = max(max_sum, maxSumWithSquare);
+            max_sum = max(max_sum, maxSumWithoutSquare ); 
         }
 
         return max_sum;
