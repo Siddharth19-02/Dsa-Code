@@ -7,14 +7,21 @@ public:
         if(s.size() == k)
             return true;
 
-        int odd = 0;
+        unordered_map<char,int>mp;
+
         for(char ch : s)
         {
-            odd ^= (1<<(ch-'a'));
+            mp[ch]++;
         }
 
-        int setBits = __builtin_popcount(odd);
+        int odd = 0;
 
-        return (setBits<=k);
+        for(const auto &[key,value] : mp)
+        {
+            if(value%2 != 0)
+                odd++;
+        }
+
+        return (odd<=k);
     }
 };
