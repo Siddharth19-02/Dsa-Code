@@ -84,21 +84,6 @@ public:
             }
         }
 
-        unordered_map<int, int>mp;
-
-        for(int i=0;i<n;i++)
-        {
-            for(int j=0;j<n;j++)
-            {
-                if(!grid[i][j])
-                    continue;
-
-                int coodinates = calculateCoodinates(i, j, n);
-                int parentOfCoodinate = findParent(coodinates, parent);
-                mp[parentOfCoodinate] = rank[parentOfCoodinate];
-            }
-        }
-
         for(int i=0;i<n;i++)
         {
             for(int j=0;j<n;j++)
@@ -119,7 +104,7 @@ public:
                     {
                         int coodinates = calculateCoodinates(x, y, n);
                         int parentOfCoodinate = findParent(coodinates, parent);
-                        int size = mp[parentOfCoodinate];
+                        int size = rank[parentOfCoodinate];
 
                         if(set.find(parentOfCoodinate) != set.end())
                             continue;
