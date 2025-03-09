@@ -1,0 +1,28 @@
+class Solution {
+public:
+    int numberOfAlternatingGroups(vector<int>& colors, int k) {
+        
+        int sameTiles = 0;
+        int totalCount = 0;
+        int n = colors.size();
+
+        for(int i=1;i<k;i++)
+        {
+            sameTiles += (colors[i] == colors[i-1]);
+        }
+
+        for(int i=0;i<n;i++)
+        {
+            if(sameTiles == 0)
+                totalCount++;
+            
+            if(colors[i] == colors[(i+1)%n])
+                sameTiles--;
+
+            if(colors[(i+k)%n] == colors[(i+k-1)%n])
+                sameTiles++;
+        }
+
+        return totalCount;
+    }
+};
