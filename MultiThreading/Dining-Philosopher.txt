@@ -1,0 +1,299 @@
+if it goes in wait(), then lock is released internally.
+
+Executable -> 
+ComparableFuture
+Callable and Future
+
+Locks and conditions -> ReEntrantLock and ReadWriteLock and SpinLocks
+Synchronized -> wait and notifyAll()
+Semaphore
+CountDownLatch
+CyclicBarrier
+ForkJoinPool
+
+Thread staarvation
+
+
+// solution 1 using locks
+
+import java.util.concurrent.locks.ReentrantLock;
+
+class DiningPhilosophers {
+
+    private final ReentrantLock[] forks;
+
+    public DiningPhilosophers() {
+        forks = new ReentrantLock[5];
+        for (int i = 0; i < 5; i++) {
+            forks[i] = new ReentrantLock();
+        }
+    }
+
+    public void wantsToEat(
+        int philosopher,
+        Runnable pickLeftFork,
+        Runnable pickRightFork,
+        Runnable eat,
+        Runnable putLeftFork,
+        Runnable putRightFork
+    ) throws InterruptedException {
+
+        int left = philosopher;
+        int right = (philosopher+1)%5;
+
+        int mini = Math.min(left, right);
+        int maxi = Math.max(left, right);
+
+        forks[mini].lockInterruptibly();
+
+        try{
+            forks[maxi].lockInterruptibly();
+            try{
+                pickLeftFork.run();
+                pickRightFork.run();
+
+                eat.run();
+
+                putLeftFork.run();
+                putRightFork.run();
+            } finally {
+                forks[maxi].unlock();
+            }
+        } finally {
+            forks[mini].unlock();
+        }
+    }
+}
+
+lock has 2 methods -> lock and lockInterruptibly , lock waits even if someone calls interrupt but lockInterruptibly stops the waiting if some calls interrupt.
+
+------------------------------------------------------------------------------------
+
+// solution 2 using semaphore
+
+import java.util.concurrent.Semaphore;
+
+class DiningPhilosophers {
+
+    private Semaphore[] forks = new Semaphore[5];
+
+    public DiningPhilosophers() {
+        for (int i = 0; i < 5; i++) {
+            forks[i] = new Semaphore(1);
+        }
+    }
+
+    public void wantsToEat(
+        int philosopher,
+        Runnable pickLeftFork,
+        Runnable pickRightFork,
+        Runnable eat,
+        Runnable putLeftFork,
+        Runnable putRightFork
+    ) throws InterruptedException {
+
+        int left = philosopher;
+        int right = (philosopher + 1) % 5;
+
+        int first = Math.min(left, right);
+        int second = Math.max(left, right);
+
+        forks[first].acquire();
+
+        try {
+            forks[second].acquire();
+
+            try {
+                pickLeftFork.run();
+                pickRightFork.run();
+
+                eat.run();
+
+                putLeftFork.run();
+                putRightFork.run();
+
+            } finally {
+                forks[second].release();
+            }
+
+        } finally {
+            forks[first].release();
+        }
+    }
+}
+----------------------------------------------------------------------------------------------------------------
+// Solution 3 using 4 semaphore 
+
+import java.util.concurrent.locks.ReentrantLock;
+
+class DiningPhilosophers {
+
+    private Semaphore[] forks;
+    private Semaphore rooms = new Semaphore(4);
+
+    public DiningPhilosophers() {
+        forks = new Semaphore[5];
+        for (int i = 0; i < 5; i++) {
+            forks[i] = new Semaphore(1);
+        }
+    }
+
+    public void wantsToEat(
+        int philosopher,
+        Runnable pickLeftFork,
+        Runnable pickRightFork,
+        Runnable eat,
+        Runnable putLeftFork,
+        Runnable putRightFork
+    ) throws InterruptedException {
+
+        int left = philosopher;
+        int right = (philosopher+1)%5;
+        rooms.acquire();
+
+        try {
+            forks[left].acquire();
+            try {
+                forks[right].acquire();
+                try {
+                    pickLeftFork.run();
+                    pickRightFork.run();
+
+                    eat.run();
+
+                    putLeftFork.run();
+                    putRightFork.run();
+                } finally {
+                    forks[right].release();
+                } 
+            }finally {
+                forks[left].release();
+            }
+        } finally {
+            rooms.release();
+        }
+    }
+}
+
+
+---------------------------------------------------------------------------------------------------------------------------------------
+// solution 4 using synchronized
+
+
+class DiningPhilosophers {
+
+    private final Object[] forks = new Object[5];
+
+    public DiningPhilosophers() {
+        for (int i = 0; i < 5; i++) {
+            forks[i] = new Object();
+        }
+    }
+
+    public void wantsToEat(
+        int philosopher,
+        Runnable pickLeftFork,
+        Runnable pickRightFork,
+        Runnable eat,
+        Runnable putLeftFork,
+        Runnable putRightFork
+    ) throws InterruptedException {
+
+        int left = philosopher;
+        int right = (philosopher + 1) % 5;
+
+        int first = Math.min(left, right);
+        int second = Math.max(left, right);
+
+        synchronized (forks[first]) {
+            synchronized (forks[second]) {
+
+                pickLeftFork.run();
+                pickRightFork.run();
+
+                eat.run();
+
+                putLeftFork.run();
+                putRightFork.run();
+            }
+        }
+    }
+}
+
+
+------------------------------------------------------------------------------------------------------------------------------------
+Solution 5 
+
+
+class DiningPhilosophers {
+
+    private static final int THINKING = 0;
+    private static final int HUNGRY = 1;
+    private static final int EATING = 2;
+
+    private final int[] state = new int[5];
+
+    private final Object monitor = new Object();
+
+    public DiningPhilosophers() {
+    }
+
+    private boolean canEat(int i) {
+
+        int left = (i + 4) % 5;
+        int right = (i + 1) % 5;
+
+        return state[i] == HUNGRY &&
+               state[left] != EATING &&
+               state[right] != EATING;
+    }
+
+    public void wantsToEat(
+        int philosopher,
+        Runnable pickLeftFork,
+        Runnable pickRightFork,
+        Runnable eat,
+        Runnable putLeftFork,
+        Runnable putRightFork
+    ) throws InterruptedException {
+
+        boolean acquired = false;
+
+        try {
+
+            synchronized (monitor) {
+
+                state[philosopher] = HUNGRY;
+
+                while (!canEat(philosopher)) {
+                    monitor.wait();
+                }
+
+                state[philosopher] = EATING;
+                acquired = true;
+            }
+
+            pickLeftFork.run();
+            pickRightFork.run();
+
+            try {
+                eat.run();
+            } finally {
+                putLeftFork.run();
+                putRightFork.run();
+            }
+
+        } finally {
+
+            synchronized (monitor) {
+
+                if (!acquired || state[philosopher] == EATING) {
+                    state[philosopher] = THINKING;
+                }
+
+                monitor.notifyAll();
+            }
+        }
+    }
+}
+
