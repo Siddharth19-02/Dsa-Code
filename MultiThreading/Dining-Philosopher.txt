@@ -5,8 +5,12 @@ Executable ->
 ComparableFuture
 Callable and Future
 
+Deadloack prevention
+1. have locking on locks, semaphores etc
+2. global ordering
+
 Locks and conditions -> ReEntrantLock and ReadWriteLock and SpinLocks
-Synchronized -> wait and notifyAll()
+Synchronized -> Object and wait and notifyAll
 Semaphore
 CountDownLatch
 CyclicBarrier
