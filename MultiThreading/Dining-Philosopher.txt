@@ -1,4 +1,5 @@
 if it goes in wait(), then lock is released internally.
+what happens when cpu is given to another thread?
 
 Executable -> 
 ComparableFuture
@@ -11,7 +12,7 @@ CountDownLatch
 CyclicBarrier
 ForkJoinPool
 
-Thread staarvation
+Thread starvation
 
 
 // solution 1 using locks
