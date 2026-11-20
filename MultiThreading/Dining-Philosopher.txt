@@ -1,6 +1,7 @@
 if it goes in wait(), then lock is released internally.
 what happens when cpu is given to another thread?
 Data Race and Race Condition
+Singleton and double checked locking ( static function are lazily loaded)
 
 Executable -> 
 ComparableFuture
